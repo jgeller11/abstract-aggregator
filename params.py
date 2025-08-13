@@ -39,3 +39,12 @@ NUM_AUTHOR_BIAS = 2
 
 # for web scraping for abstracts
 HEADERS = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246", 'Accept-Encoding': 'gzip'}
+
+# KEYBINDINGS (using tk keycodes)
+NEXT_KEY = '<Right>'
+PREV_KEY = '<LEFT>'
+YESTERDAY_KEY = "<.>"
+TOMORROW_KEY = "<Return>"
+DOWNLOAD_KEY = "<Down>"
+OPEN_KEY = "<Up>"
+QUIT_KEY = "<q>"
