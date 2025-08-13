@@ -42,7 +42,7 @@ HEADERS = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 
 # KEYBINDINGS (using tk keycodes)
 NEXT_KEY = '<Right>'
-PREV_KEY = '<LEFT>'
+PREV_KEY = '<Left>'
 YESTERDAY_KEY = "<.>"
 TOMORROW_KEY = "<Return>"
 DOWNLOAD_KEY = "<Down>"

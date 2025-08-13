@@ -58,5 +58,5 @@ try:
     Reader.start()
 
 except: 
-     with open("/Users/jonathangeller/Documents/fun/programming/arxiv_reader/error.log", "w") as f:
+     with open("error.log", "w") as f:
         f.write(traceback.format_exc())

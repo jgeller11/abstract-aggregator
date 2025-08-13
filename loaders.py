@@ -7,7 +7,7 @@ import time
 from paper import *
 
 # returns list of "entry"-formatted objects from feedparser
-def get_rss_feed(url):
+def get_rss_feed(url : str):
     feed_obj = parse(url)
     return feed_obj.entries
 
@@ -139,7 +139,7 @@ def load_ncomms() -> list[NaturePaper]:
 
     return papers
 
-def load_nature(journal_short, journal_rss) -> list[NaturePaper]:
+def load_nature(journal_short : str, journal_rss : str) -> list[NaturePaper]:
     
     feed = get_rss_feed(f"https://www.nature.com/{journal_rss}.rss")
 
@@ -166,7 +166,7 @@ def load_nature(journal_short, journal_rss) -> list[NaturePaper]:
     return papers
 
 
-def load_acs(journal_short, journal_rss) -> list[ACSPaper]:
+def load_acs(journal_short : str, journal_rss : str) -> list[ACSPaper]:
     
     feed = get_rss_feed(f"https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc={journal_rss}")
 
@@ -191,7 +191,7 @@ def load_acs(journal_short, journal_rss) -> list[ACSPaper]:
 
     return papers
 
-def load_pnas(journal_short, journal_rss) -> list[PNASPaper]:
+def load_pnas(journal_short : str, journal_rss : str) -> list[PNASPaper]:
     
     feed = get_rss_feed(f"https://www.pnas.org/action/showFeed?type=searchTopic&taxonomyCode=topic&tagCode={journal_rss}")
 
