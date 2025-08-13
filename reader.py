@@ -4,8 +4,9 @@ import os
 import datetime
 import requests
 import pathlib
-from bib_from_doi import get_bib_from_doi
 
+# local classes
+from bib_from_doi import get_bib_from_doi
 from gui_params import *
 from params import *
 from funcs import *

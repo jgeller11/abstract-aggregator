@@ -7,6 +7,8 @@ import requests
 import bibtexparser
 import re
 
+# global variable to point to the api resolver that will be used by
+# the application to acquire bibtex string
 bare_url = "http://api.crossref.org/"
 
 def get_bib(doi):
