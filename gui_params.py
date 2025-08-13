@@ -1,0 +1,2 @@
+BG_COLOR = "#15141A"
+TXT_COLOR = "#eee"
