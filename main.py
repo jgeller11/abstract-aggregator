@@ -18,6 +18,8 @@ import traceback
 try: 
     if not os.path.exists(os.path.join(os.getenv("HOME"), ".abstract-aggregator")):
         os.makedirs(os.path.join(os.getenv("HOME"), ".abstract-aggregator"))
+    if not os.path.exists(os.path.join(os.getenv("HOME"), ".abstract-aggregator", "scorer")):
+        os.makedirs(os.path.join(os.getenv("HOME"), ".abstract-aggregator", "scorer"))
 
     window = tk.Tk()
 

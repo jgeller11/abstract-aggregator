@@ -1,5 +1,7 @@
 import time 
 import re
+import os 
+import json
 
 # replace all whitespace with single spaces
 def fix_whitespace(string : str) -> str:
@@ -57,3 +59,14 @@ def background_load(reader) -> None:
             time.sleep(0.05)
         else: # wait longer for user to proceed to next feed
             time.sleep(5)
+
+# pass a relative filepath from app's directory and a json file; if file exists, updates json file with info in directory, otherwise writes directory to file at location
+def update_to_or_from_saved_json(filepath: str, dictionary: dict):
+    fullfilepath = os.path.join(os.getenv("HOME"), ".abstract-aggregator", filepath)
+    if os.path.exists(fullfilepath):
+        with open(fullfilepath, 'r') as f:
+            dictionary.update(json.load(f))
+    # otherwise, create keybindings.json
+    else:
+        with open(fullfilepath, 'w') as fout:
+            fout.write(str(json.dumps(dictionary, indent=4, sort_keys=True,separators=(",",": "), ensure_ascii=False)))

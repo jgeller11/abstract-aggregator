@@ -341,17 +341,9 @@ class Reader:
         # set up directories #
         ######################
 
-        directories_filepath = DIRECTORIES_FILE
+        directories_filepath = "directories.json"
         dirs = {"bib": DEFAULT_BIB_DIR, "downloads" : DEFAULT_DOWNLOAD_DIR}
-
-        # read from directories.json file if it exists
-        if os.path.exists(directories_filepath):
-            with open(directories_filepath, 'r') as f:
-                dirs = json.load(f)
-        # otherwise, create directories.json
-        else:
-            with open(directories_filepath, 'w') as fout:
-                fout.write(str(json.dumps(dirs, indent=4, sort_keys=True,separators=(",",": "), ensure_ascii=False)))
+        update_to_or_from_saved_json(directories_filepath, dirs)
         
         self.bib_directory = dirs["bib"]
         self.download_directory = dirs["downloads"]
@@ -382,18 +374,9 @@ class Reader:
         # set up keybindings #
         ######################
 
-        keybindings_filepath = os.path.join(os.getenv("HOME"), ".abstract-aggregator", "keybindings.json")
-
+        keybindings_filepath = "keybindings.json"
         self.keybindings = DEFAULT_KEYBINDINGS
-
-        # read from keybindings.json file if it exists
-        if os.path.exists(keybindings_filepath):
-            with open(keybindings_filepath, 'r') as f:
-                self.keybindings.update(json.load(f))
-        # otherwise, create keybindings.json
-        else:
-            with open(keybindings_filepath, 'w') as fout:
-                fout.write(str(json.dumps(self.keybindings, indent=4, sort_keys=True,separators=(",",": "), ensure_ascii=False)))
+        update_to_or_from_saved_json(keybindings_filepath, self.keybindings)
 
         self.root.bind_all(self.keybindings["NEXT"], self.next)
         self.root.bind_all(self.keybindings["PREV"], self.prev)
