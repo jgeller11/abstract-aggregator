@@ -342,7 +342,7 @@ class Reader:
         self.root.bind_all(PREV_KEY, self.prev)
         self.root.bind_all(YESTERDAY_KEY, self.yesterday)
         self.root.bind_all(TOMORROW_KEY, self.tomorrow)
-        self.root.bind_all(DOWNLOAD_DIR, self.download)
+        self.root.bind_all(DOWNLOAD_KEY, self.download)
         self.root.bind_all(OPEN_KEY, self.open_webpage)
         self.root.bind_all(QUIT_KEY, self.exit)
 
