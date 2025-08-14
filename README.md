@@ -12,4 +12,4 @@ in app, use left/right arrows to proceed to next/previous paper in current feed,
 ## build to .app:
 must work in python environment with `bibtexparser`, `html5lib`, `bs4`, `requests`, `feedparser`
 
-run `pyinstaller --noconsole --onefile --windowed --icon=icon.icns --name "abstract aggregator" main.py`
+run `pyinstaller build.spec`
