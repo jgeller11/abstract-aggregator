@@ -229,6 +229,33 @@ def load_pnas(scorer: "Scorer", journal_short : str, journal_rss : str) -> list[
 
     return papers
 
+
+def load_rosi(scorer: "Scorer") -> list[RoSIPaper]:
+    
+    feed = get_rss_feed(f"https://pubs.aip.org/rss/site_1000041/1000023.xml")
+
+    papers = []
+
+    for entry in feed:
+        title = entry['title_detail']['value'].replace("<sub>", "_").replace("</sub>","").replace("<i>","").replace("</i>","")
+        if 'authors' in entry:
+            authors = [author['name'] for author in entry['authors']]
+        else:
+            authors = []
+
+        doi = entry['prism_doi']
+        download_link = None
+        paper_date = datetime.datetime.fromtimestamp(time.mktime(entry['published_parsed'])).date()
+        
+        if "summary" in entry:
+            summary = scrub_html_tags(entry['summary'])
+        else:
+            summary = "No abstract available from this RSS feed"
+
+        papers.append(RoSIPaper(scorer, title, authors, summary, download_link, doi, paper_date, entry['id']))
+
+    return papers
+
 def get_all_papers(scorer: "Scorer") -> list[Paper]:
     papers = []
     papers += load_arxiv(scorer)
@@ -244,6 +271,7 @@ def get_all_papers(scorer: "Scorer") -> list[Paper]:
     papers += load_acs(scorer, "acs nano letters", "nalefd")
     papers += load_acs(scorer, "acs applied optical materials", "aaoma6")
     papers += load_pnas(scorer, "pnas applied phys", "app-phys")
-    papers += load_pnas(scorer, "pnas applied phys", "phys")
+    papers += load_pnas(scorer, "pnas physics", "phys")
+    papers += load_rosi(scorer)
     papers.sort()
     return papers

@@ -172,3 +172,11 @@ class PNASPaper(Paper):
 
     def load(self) -> bool:
         return True
+
+class RoSIPaper(Paper):
+
+    def __init__(self, scorer: "Scorer", title: str, authors: str = [], summary: str = "No abstract available from this RSS feed", download_link:str = "", doi: str = "", publish_date: datetime.date = None, website_url = None):
+        super().__init__(scorer, title, authors, download_link, doi, "RoSI", None, summary, [], True, None, None, publish_date, website_url)
+
+    def load(self) -> bool:
+        return True
