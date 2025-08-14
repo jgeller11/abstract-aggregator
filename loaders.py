@@ -267,6 +267,7 @@ def get_all_papers(scorer: "Scorer") -> list[Paper]:
     papers += load_nature(scorer, "nmat", "nmat")
     papers += load_nature(scorer, "nphys", "nphys")
     papers += load_nature(scorer, "nnano", "nnano")
+    papers += load_nature(scorer, "nature", "nature")
     papers += load_acs(scorer, "acs applied nano", "aanmf6")
     papers += load_acs(scorer, "acs nano letters", "nalefd")
     papers += load_acs(scorer, "acs applied optical materials", "aaoma6")
