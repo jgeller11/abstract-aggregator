@@ -5,13 +5,14 @@ from feedparser import parse
 import datetime
 import time
 from paper import *
+from scorer import Scorer
 
 # returns list of "entry"-formatted objects from feedparser
 def get_rss_feed(url : str):
     feed_obj = parse(url)
     return feed_obj.entries
 
-def load_arxiv() -> list[ArxivPaper]:
+def load_arxiv(scorer: "Scorer") -> list[ArxivPaper]:
     os.system('cls' if os.name == 'nt' else 'clear')
 
     cat_str = ""
@@ -56,11 +57,13 @@ def load_arxiv() -> list[ArxivPaper]:
 
         website_url = paper['links'][0]['href']
 
-        papers.append(ArxivPaper(paper.title, authors, "https://arxiv.org/pdf/"+arxiv_id, "https://doi.org/10.48550/arXiv."+mod_arxiv_id, "arxiv", paper.updated, paper.summary, paper.tags, publish_date=paper_date.date(), website_url = website_url))
+        publish_date = paper_date.date()
+
+        papers.append(ArxivPaper(scorer, paper.title, authors, "https://arxiv.org/pdf/"+arxiv_id, "https://doi.org/10.48550/arXiv."+mod_arxiv_id, "arxiv", paper.updated, paper.summary, paper.tags, publish_date=publish_date, website_url = website_url))
 
     return papers
 
-def load_prb() -> list[PhysicalReviewPaper]:
+def load_prb(scorer: "Scorer") -> list[PhysicalReviewPaper]:
 
     feed = get_rss_feed("https://feeds.aps.org/rss/recent/prb.xml")
 
@@ -84,11 +87,11 @@ def load_prb() -> list[PhysicalReviewPaper]:
         website_url = entry['prism_url']
         updated = entry['prism_publicationdate']
 
-        papers.append(PhysicalReviewPaper(title, authors, download_link, doi, "prb", updated, summary, tags, website_url = website_url))
+        papers.append(PhysicalReviewPaper(scorer, title, authors, download_link, doi, "prb", updated, summary, tags, website_url = website_url))
 
     return papers
 
-def load_prl_cdm() -> list[PhysicalReviewPaper]:
+def load_prl_cdm(scorer: "Scorer") -> list[PhysicalReviewPaper]:
     feed = get_rss_feed("https://feeds.aps.org/rss/tocsec/PRL-CondensedMatterStructureetc.xml")
 
     #keys: ['id', 'title', 'title_detail', 'links', 'link', 'summary', 'summary_detail', 'content', 'authors', 'author', 'author_detail', 'updated', 'updated_parsed', 'rights', 'rights_detail', 'dc_source', 'dc_type', 'dc_identifier', 'prism_doi', 'prism_publicationname', 'prism_volume', 'prism_number', 'prism_publicationdate', 'prism_url', 'prism_startingpage', 'tags', 'prism_section']
@@ -112,11 +115,11 @@ def load_prl_cdm() -> list[PhysicalReviewPaper]:
         updated = entry['prism_publicationdate']
         website_url = entry['prism_url']
 
-        papers.append(PhysicalReviewPaper(title, authors, download_link, doi, "prl", updated, summary, tags, website_url = website_url))
+        papers.append(PhysicalReviewPaper(scorer, title, authors, download_link, doi, "prl", updated, summary, tags, website_url = website_url))
 
     return papers
 
-def load_ncomms() -> list[NaturePaper]:
+def load_ncomms(scorer: "Scorer") -> list[NaturePaper]:
 
     feed = get_rss_feed("https://www.nature.com/subjects/physical-sciences/ncomms.rss")
 
@@ -135,11 +138,11 @@ def load_ncomms() -> list[NaturePaper]:
         updated = time.strftime("%Y-%m-%d", entry["published_parsed"])
         website_url = entry['id']
 
-        papers.append(NaturePaper(title, authors, download_link, doi, "ncomms", updated, summary, tags, website_url = website_url, author_class="c-article-author-list--short"))
+        papers.append(NaturePaper(scorer, title, authors, download_link, doi, "ncomms", updated, summary, tags, website_url = website_url, author_class="c-article-author-list--short"))
 
     return papers
 
-def load_nature(journal_short : str, journal_rss : str) -> list[NaturePaper]:
+def load_nature(scorer: "Scorer", journal_short : str, journal_rss : str) -> list[NaturePaper]:
     
     feed = get_rss_feed(f"https://www.nature.com/{journal_rss}.rss")
 
@@ -161,12 +164,12 @@ def load_nature(journal_short : str, journal_rss : str) -> list[NaturePaper]:
         else:
             summary = "No abstract available from this RSS feed"
 
-        papers.append(NaturePaper(title, authors, download_link, doi, journal_short, updated, summary, [], website_url = entry['id']))
+        papers.append(NaturePaper(scorer, title, authors, download_link, doi, journal_short, updated, summary, [], website_url = entry['id']))
 
     return papers
 
 
-def load_acs(journal_short : str, journal_rss : str) -> list[ACSPaper]:
+def load_acs(scorer: "Scorer", journal_short : str, journal_rss : str) -> list[ACSPaper]:
     
     feed = get_rss_feed(f"https://pubs.acs.org/action/showFeed?type=axatoc&feed=rss&jc={journal_rss}")
 
@@ -187,11 +190,11 @@ def load_acs(journal_short : str, journal_rss : str) -> list[ACSPaper]:
         
         doi = entry['id']
 
-        papers.append(ACSPaper(title, authors, "", doi, journal_short, [], website_url = entry['id'], publish_date=paper_date))
+        papers.append(ACSPaper(scorer, title, authors, "", doi, journal_short, [], website_url = entry['id'], publish_date=paper_date))
 
     return papers
 
-def load_pnas(journal_short : str, journal_rss : str) -> list[PNASPaper]:
+def load_pnas(scorer: "Scorer", journal_short : str, journal_rss : str) -> list[PNASPaper]:
     
     feed = get_rss_feed(f"https://www.pnas.org/action/showFeed?type=searchTopic&taxonomyCode=topic&tagCode={journal_rss}")
 
@@ -222,25 +225,25 @@ def load_pnas(journal_short : str, journal_rss : str) -> list[PNASPaper]:
 
         doi = entry['id']
 
-        papers.append(PNASPaper(title, authors, summary, "", doi, journal_short, [], website_url = entry['id'], publish_date=paper_date))
+        papers.append(PNASPaper(scorer, title, authors, summary, "", doi, journal_short, [], website_url = entry['id'], publish_date=paper_date))
 
     return papers
 
-def get_all_papers() -> list[Paper]:
+def get_all_papers(scorer: "Scorer") -> list[Paper]:
     papers = []
-    papers += load_arxiv()
-    papers += load_ncomms()
-    papers += load_prl_cdm()
-    papers += load_prb()
-    papers += load_nature("npjqm", "npjquantmats")
-    papers += load_nature("nphoton", "nphoton")
-    papers += load_nature("nmat", "nmat")
-    papers += load_nature("nphys", "nphys")
-    papers += load_nature("nnano", "nnano")
-    papers += load_acs("acs applied nano", "aanmf6")
-    papers += load_acs("acs nano letters", "nalefd")
-    papers += load_acs("acs applied optical materials", "aaoma6")
-    papers += load_pnas("pnas applied phys", "app-phys")
-    papers += load_pnas("pnas applied phys", "phys")
+    papers += load_arxiv(scorer)
+    papers += load_ncomms(scorer)
+    papers += load_prl_cdm(scorer)
+    papers += load_prb(scorer)
+    papers += load_nature(scorer, "npjqm", "npjquantmats")
+    papers += load_nature(scorer, "nphoton", "nphoton")
+    papers += load_nature(scorer, "nmat", "nmat")
+    papers += load_nature(scorer, "nphys", "nphys")
+    papers += load_nature(scorer, "nnano", "nnano")
+    papers += load_acs(scorer, "acs applied nano", "aanmf6")
+    papers += load_acs(scorer, "acs nano letters", "nalefd")
+    papers += load_acs(scorer, "acs applied optical materials", "aaoma6")
+    papers += load_pnas(scorer, "pnas applied phys", "app-phys")
+    papers += load_pnas(scorer, "pnas applied phys", "phys")
     papers.sort()
     return papers

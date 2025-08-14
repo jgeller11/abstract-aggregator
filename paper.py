@@ -7,8 +7,13 @@ import datetime
 
 import webbrowser
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from scorer import Scorer
+
 class Paper:
-    def __init__(self, title: str = "No papers for this day", authors: list[str] = [], download_link: str = "", doi:str = "", journal:str = "", updated:str = "", summary:str = "No abstract available from this RSS feed", tags: list[str] = [], loaded: bool = True, loader: tuple = None, author_class = None, publish_date : datetime.date = None, website_url : str = None):
+    def __init__(self, scorer: "Scorer" = None, title: str = "No papers for this day", authors: list[str] = [], download_link: str = "", doi:str = "", journal:str = "", updated:str = "", summary:str = "No abstract available from this RSS feed", tags: list[str] = [], loaded: bool = True, loader: tuple = None, author_class = None, publish_date : datetime.date = None, website_url : str = None):
+
         self.title = title
         self.summary = summary
         self.authors = authors
@@ -29,6 +34,7 @@ class Paper:
         else:
             self.publish_date = publish_date
         
+
         # if self.publish_date > datetime.datetime.now():
             # self.publish_date = datetime.datetime.now()
         if self.publish_date != None and self.publish_date > datetime.date.today():
@@ -37,6 +43,8 @@ class Paper:
         self.loaded = loaded
         self.loader = loader
         self.author_class = author_class
+
+        self.scorer = scorer
 
         self.update_score()
 
@@ -93,49 +101,15 @@ class Paper:
         webbrowser.open(self.website_url, new = 2)
 
     def update_score(self) -> None:
-        score = 0
-
-        # JOURNAL SCORE BONUS
-
-        if self.journal in JOURNALS:
-            score += JOURNALS[self.journal]
-
-        # CATEGORY SCORE BONUS
-
-        maxbonus = 0
-        for tag in self.tags:
-            if tag.term in CATEGORIES:
-                if maxbonus < CATEGORIES[tag.term]:
-                    maxbonus = CATEGORIES[tag.term]
-            if tag.term in CATEGORY_PENALTIES:
-                score += CATEGORY_PENALTIES[tag.term]
-        score += maxbonus
-
-        # AUTHOR SCORE BONUS
-
-        total_authors = " ".join(self.authors).lower()
-        for keyauthor in KEYAUTHORS:
-            if keyauthor in total_authors:
-                score += KEYAUTHORS[keyauthor]
-        
-
-        # NUM AUTHORS BONUS
-        num_authors = len(self.authors)
-        score += NUM_AUTHOR_BIAS * min(1,(num_authors-1)/(AUTHOR_SCALE-1))
-
-        # KEYWORD SCORE BONUS
-
-        total_text = (self.title + " " + self.summary).replace("\n", " ").lower()
-        for keyword in KEYWORDS:
-            if keyword in total_text:
-                score += KEYWORDS[keyword]
-        
-        self.score = score
+        if self.scorer != None:
+            self.score = self.scorer(self)
+        else:
+            self.score = 0
 
 class NaturePaper(Paper):
 
-    def __init__(self, title = "No papers for this day", authors: str = [], download_link:str = "", doi: str = "", journal: str = "", updated: str = "", summary: str = "", tags: list[str] = [], publish_date: datetime.date = None, website_url = None, author_class = None):
-        super().__init__(title, authors, download_link, doi, journal, updated, summary, tags, False, None, None, publish_date, website_url)
+    def __init__(self, scorer: "Scorer", title = "No papers for this day", authors: str = [], download_link:str = "", doi: str = "", journal: str = "", updated: str = "", summary: str = "", tags: list[str] = [], publish_date: datetime.date = None, website_url = None, author_class = None):
+        super().__init__(scorer, title, authors, download_link, doi, journal, updated, summary, tags, False, None, None, publish_date, website_url)
 
     def load(self) -> bool:
         if self.loaded:
@@ -170,31 +144,31 @@ class NaturePaper(Paper):
 
 class PhysicalReviewPaper(Paper):
 
-    def __init__(self, title = "No papers for this day", authors = [], download_link = "", doi = "", journal = "", updated = "", summary = "", tags = [], loaded = False, publish_date = None, website_url = None):
-        super().__init__(title, authors, download_link, doi, journal, updated, summary, tags, True, None, None, publish_date, website_url)
+    def __init__(self, scorer: "Scorer", title = "No papers for this day", authors = [], download_link = "", doi = "", journal = "", updated = "", summary = "", tags = [], loaded = False, publish_date = None, website_url = None):
+        super().__init__(scorer, title, authors, download_link, doi, journal, updated, summary, tags, True, None, None, publish_date, website_url)
 
     def load(self):
         return True
     
 class ArxivPaper(Paper):
-    def __init__(self, title = "No papers for this day", authors = [], download_link = "", doi = "", journal = "", updated = "", summary = "", tags = [], loaded = True, loader = None, author_class=None, publish_date = None, website_url = None):
-        super().__init__(title, authors, download_link, doi, journal, updated, summary, tags, loaded, loader, author_class, publish_date, website_url)
+    def __init__(self, scorer: "Scorer", title = "No papers for this day", authors = [], download_link = "", doi = "", journal = "", updated = "", summary = "", tags = [], loaded = True, loader = None, author_class=None, publish_date = None, website_url = None):
+        super().__init__(scorer, title, authors, download_link, doi, journal, updated, summary, tags, loaded, loader, author_class, publish_date, website_url)
     def load(self):
         return True
     
 
 class ACSPaper(Paper):
 
-    def __init__(self, title: str, authors: str = [], download_link:str = "", doi: str = "", journal: str = "", tags: list[str] = [], publish_date: datetime.date = None, website_url = None):
-        super().__init__(title, authors, None, doi, journal, None, "No abstract available from this RSS feed", tags, True, None, None, publish_date, website_url)
+    def __init__(self, scorer: "Scorer", title: str, authors: str = [], download_link:str = "", doi: str = "", journal: str = "", tags: list[str] = [], publish_date: datetime.date = None, website_url = None):
+        super().__init__(scorer, title, authors, None, doi, journal, None, "No abstract available from this RSS feed", tags, True, None, None, publish_date, website_url)
 
     def load(self) -> bool:
         return True
 
 class PNASPaper(Paper):
 
-    def __init__(self, title: str, authors: str = [], summary: str = "No abstract available from this RSS feed", download_link:str = "", doi: str = "", journal: str = "", tags: list[str] = [], publish_date: datetime.date = None, website_url = None):
-        super().__init__(title, authors, None, doi, journal, None, summary, tags, True, None, None, publish_date, website_url)
+    def __init__(self, scorer: "Scorer", title: str, authors: str = [], summary: str = "No abstract available from this RSS feed", download_link:str = "", doi: str = "", journal: str = "", tags: list[str] = [], publish_date: datetime.date = None, website_url = None):
+        super().__init__(scorer, title, authors, None, doi, journal, None, summary, tags, True, None, None, publish_date, website_url)
 
     def load(self) -> bool:
         return True

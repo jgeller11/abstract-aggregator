@@ -10,6 +10,7 @@ from params import *
 from funcs import *
 
 from reader import Reader
+from scorer import Scorer
 import tkinter as tk
 
 import traceback
@@ -40,16 +41,11 @@ try:
 
     window.update()
 
-    papers = get_all_papers()
+    scorer = Scorer()
 
-    # testing directories
-    # dir_1 = picture_path = os.path.join(os.path.expanduser("~"), "Documents", "fun", "programming", "arxiv_reader", "downloads","")
-    # dir_2 = picture_path = os.path.join(os.path.expanduser("~"), "Documents", "fun", "programming", "arxiv_reader", "downloads", "bibliography.bib")
-
-    # operating directories
+    papers = get_all_papers(scorer)
     
-    Reader = Reader(window, papers, load_each_day = False, load_all = False, load_none = False)
-
+    Reader = Reader(window, papers, scorer)
 
     daemon = Thread(target=lambda : background_load(Reader), daemon=True, name='Loader')
     daemon.start()
@@ -60,5 +56,5 @@ try:
     Reader.start()
 
 except: 
-    with open(os.path.join(os.path.expanduser("~"), "Documents", "fun", "programming", "abstract-aggregator", "error.log"), "w") as f:
+    with open(os.path.join(os.path.expanduser("~"), "Documents", "fun", "programming", "abstract-aggregator", "error.log"), "a") as f:
         f.write(traceback.format_exc())

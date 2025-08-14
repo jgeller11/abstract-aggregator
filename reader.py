@@ -12,6 +12,7 @@ from gui_params import *
 from params import *
 from funcs import *
 from paper import Paper 
+from scorer import Scorer
 
 class Reader:
     # unused
@@ -33,8 +34,6 @@ class Reader:
         with open(self.seen_dois_filepath, 'a') as f:
             for paper in self.full_feed:
                 if not (paper.doi in self.seen_dois):
-                    if self.load_each_day:
-                        paper.load()
                     unseen_feed.append(paper)
                     f.write(paper.doi + "\n")
                     
@@ -45,7 +44,7 @@ class Reader:
         
         unseen_feed.sort()
 
-        self.feed = unseen_feed        
+        self.feed: list[Paper] = unseen_feed        
         self.total_papers = len(self.feed)
         self.current_paper = 0
 
@@ -60,8 +59,6 @@ class Reader:
         today_feed = []
         for paper in self.full_feed:
             if self.is_today(paper):
-                if self.load_each_day:
-                    paper.load()
                 today_feed.append(paper)
         
         if len(today_feed) == 0:
@@ -132,10 +129,7 @@ class Reader:
     
     # finds next paper which is not loaded in feed, attempts to load it
     # returns True if an as of yet unloaded paper was successfully loaded
-    # if reader has load_none set, always returns False
     def load_next_unloaded_paper(self) -> bool:
-        if self.load_none: 
-            return False
         counter = self.current_paper + 1
         while counter < self.total_papers:
             if not self.feed[counter].load():
@@ -308,29 +302,15 @@ class Reader:
 
     # initialize gui_reader object
     # feed: list of papers to be potentially displayed
-    # download_directory: str with file path to where downloaded .pdfs should be saved
-    # bib_directory: str with file path to .bib file for citations
-    # load_each_day: set to True to fully load all papers from a single day when switching to that day
-    # load_all: set to True to fully load all papers on startup
-    # load_none: set to True to avoid loading any papers at any point
-    # seen_dois_directory: str with file path to .txt file recording seen papers by their dois
-    def __init__(self, root, feed: list[Paper], download_directory: str = "./downloads/", bib_directory: str = "./downloads/bibliography.bib", load_each_day: bool = False, load_all: bool = False, load_none: bool = False): 
+    def __init__(self, root, feed: list[Paper], scorer: Scorer): 
         self.root = root
         self.full_feed = feed
         self.settings_window = None
         self.date = datetime.date.today() + datetime.timedelta(days=1)
         self.date_str = "New Papers"
         self.current_paper = 0
-        self.load_each_day = load_each_day
-        self.load_none = load_none
-
-        if load_all:
-            os.system('cls' if os.name == 'nt' else 'clear')
-            print("loading papers...")
-            for i, paper in enumerate(self.full_feed):
-                paper.load()
-                print(f"{i}/{len(self.full_feed)}", end="\r")
-
+        self.scorer = scorer
+        
         ###################
         # set up seendois #
         ###################
@@ -378,7 +358,7 @@ class Reader:
 
         if not os.path.exists(self.download_directory):
             os.makedirs(self.download_directory)
-            
+
         #################
         # set up window #
         #################    
