@@ -1,8 +1,10 @@
 import tkinter as tk
+from tkinter import ttk
 import os
 import datetime
 import requests
 import pathlib
+import sys
 
 # local classes
 from bib_from_doi import get_bib_from_doi
@@ -273,6 +275,37 @@ class Reader:
     def open_webpage(self, event : tk.Event = None) -> None:
         self.get_current_paper().open()
 
+    # opens settings window if one does not exist
+    # returns true if new window successfully opened
+    def open_settings(self, event : tk.Event = None) -> bool:
+        if self.settings_window is not None:
+            return False
+        
+        self.settings_window = tk.Tk()
+        def close_window(): 
+            self.settings_window.destroy()
+            self.settings_window = None
+        self.settings_window.protocol("WM_DELETE_WINDOW", close_window)
+        
+        window_width = 500
+        window_height = 600
+
+        screen_width = self.settings_window.winfo_screenwidth()
+        screen_height = self.settings_window.winfo_screenheight()
+        x = (screen_width/2) - (window_width/2)
+        y = (screen_height/2) - (window_height/2)
+
+        self.settings_window.title("Abstract Aggregator")
+        self.settings_window.geometry('%dx%d+%d+%d' % (window_width, window_height, x, y))
+        self.settings_window.attributes("-topmost", 1)
+        self.settings_window.attributes("-topmost", 0)
+
+        self.settings_window.configure(bg=BG_COLOR)
+
+        self.settings_window.mainloop()
+        
+        return True
+
     # initialize gui_reader object
     # feed: list of papers to be potentially displayed
     # download_directory: str with file path to where downloaded .pdfs should be saved
@@ -281,19 +314,26 @@ class Reader:
     # load_all: set to True to fully load all papers on startup
     # load_none: set to True to avoid loading any papers at any point
     # seen_dois_directory: str with file path to .txt file recording seen papers by their dois
-    def __init__(self, root, feed: list[Paper], download_directory: str = "./downloads/", bib_directory: str = "./downloads/bibliography.bib", load_each_day: bool = False, load_all: bool = False, load_none: bool = False, seen_dois_directory: str = None): 
+    def __init__(self, root, feed: list[Paper], download_directory: str = "./downloads/", bib_directory: str = "./downloads/bibliography.bib", load_each_day: bool = False, load_all: bool = False, load_none: bool = False): 
         self.root = root
         self.full_feed = feed
-
+        self.settings_window = None
 
         self.seen_dois = set()
 
-        self.seen_dois_filepath = seen_dois_directory
-        if seen_dois_directory != None:
-            with open(seen_dois_directory, 'r') as f:
+        self.seen_dois_filepath = os.path.join(os.getenv("HOME"), ".abstract-aggregator", "seendois.txt")
+
+        # read from seendois.txt file if it exists
+        if os.path.exists(self.seen_dois_filepath):
+            with open(self.seen_dois_filepath, 'r') as f:
                 for l in f.readlines():
                     self.seen_dois.add(l.replace("\n",""))
+        # otherwise, create seendois.txt
+        else:
+            with open(self.seen_dois_filepath, 'w') as fout:
+                fout.writelines([""])
 
+        # cull first 200 entries of seendois.txt if too long
         if len(self.seen_dois) > 10000:
             with open(self.seen_dois_filepath, 'r') as fin:
                 data = fin.read().splitlines(True)
@@ -345,5 +385,6 @@ class Reader:
         self.root.bind_all(DOWNLOAD_KEY, self.download)
         self.root.bind_all(OPEN_KEY, self.open_webpage)
         self.root.bind_all(QUIT_KEY, self.exit)
+        self.root.bind_all(SETTINGS_KEY, self.open_settings)
 
         self.update_window()

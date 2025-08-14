@@ -15,6 +15,9 @@ import tkinter as tk
 import traceback
 
 try: 
+    if not os.path.exists(os.path.join(os.getenv("HOME"), ".abstract-aggregator")):
+        os.makedirs(os.path.join(os.getenv("HOME"), ".abstract-aggregator"))
+
     window = tk.Tk()
 
     window_width = 800
@@ -27,7 +30,6 @@ try:
 
     window.title("Abstract Aggregator")
     window.geometry('%dx%d+%d+%d' % (window_width, window_height, x, y))
-    window.geometry("800x500")
     window.attributes("-topmost", 1)
     window.attributes("-topmost", 0)
 
@@ -46,7 +48,7 @@ try:
 
     # operating directories
     
-    Reader = Reader(window, papers, download_directory=DOWNLOAD_DIR, bib_directory=BIB_DIR, load_each_day = False, load_all = False, load_none = False, seen_dois_directory = SEEN_DOIS_FILEPATH)
+    Reader = Reader(window, papers, download_directory=DOWNLOAD_DIR, bib_directory=BIB_DIR, load_each_day = False, load_all = False, load_none = False)
 
 
     daemon = Thread(target=lambda : background_load(Reader), daemon=True, name='Loader')
@@ -58,5 +60,5 @@ try:
     Reader.start()
 
 except: 
-     with open("error.log", "w") as f:
+    with open(os.path.join(os.path.expanduser("~"), "Documents", "fun", "programming", "abstract-aggregator", "error.log"), "w") as f:
         f.write(traceback.format_exc())

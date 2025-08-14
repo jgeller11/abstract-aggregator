@@ -25,8 +25,6 @@ JOURNALS = {"arxiv": 0, "prb": 1, "prl": 1, "npjqm": 4, "nphys": 4, "nmat": 4, "
 DOWNLOAD_DIR = os.path.join(os.path.expanduser("~"), "Documents", "mit", "gedik_group", "reading", "")
 # path to .bib file where citations should be written
 BIB_DIR = os.path.join(os.path.expanduser("~"), "Documents", "mit", "gedik_group", "reading", "bibliography.bib")
-# path to seendois.txt file which holds info about papers already read
-SEEN_DOIS_FILEPATH = os.path.join(os.path.expanduser("~"), "Documents", "fun", "programming", "abstract-aggregator", "seendois.txt")
 
 # minimum score to display a paper, currently not used
 MIN_SCORE = 0
@@ -48,3 +46,4 @@ TOMORROW_KEY = "<Return>"
 DOWNLOAD_KEY = "<Down>"
 OPEN_KEY = "<Up>"
 QUIT_KEY = "<q>"
+SETTINGS_KEY = "<Control-s>"
