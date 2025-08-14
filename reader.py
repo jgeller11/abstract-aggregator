@@ -4,7 +4,7 @@ import os
 import datetime
 import requests
 import pathlib
-import sys
+import json
 
 # local classes
 from bib_from_doi import get_bib_from_doi
@@ -205,7 +205,7 @@ class Reader:
         entry = self.get_current_paper()
         download_path = fix_whitespace(entry.title.replace("\n"," ")).translate(str.maketrans("", "", "*^{}$")).replace(" ","_").replace(":","-").replace("/","-").replace("\\","-")
         if not in_dir:
-            download_path = self.download_directory + download_path
+            download_path = self.download_directory + "/" + download_path
 
         # ensure not overwriting
         i = 0
@@ -318,6 +318,22 @@ class Reader:
         self.root = root
         self.full_feed = feed
         self.settings_window = None
+        self.date = datetime.date.today() + datetime.timedelta(days=1)
+        self.date_str = "New Papers"
+        self.current_paper = 0
+        self.load_each_day = load_each_day
+        self.load_none = load_none
+
+        if load_all:
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print("loading papers...")
+            for i, paper in enumerate(self.full_feed):
+                paper.load()
+                print(f"{i}/{len(self.full_feed)}", end="\r")
+
+        ###################
+        # set up seendois #
+        ###################
 
         self.seen_dois = set()
 
@@ -340,28 +356,32 @@ class Reader:
             with open(self.seen_dois_filepath, 'w') as fout:
                 fout.writelines(data[200:])
 
-        self.current_paper = 0
-        if download_directory == "":
-            download_directory = "~"+str(pathlib.Path().resolve())+"/downloads/"
-        if bib_directory == "":
-            bib_directory = "~"+str(pathlib.Path().resolve())+"/downloads/bibliography.bib"
-        self.download_directory = download_directory
-        self.bib_directory = bib_directory
 
-        self.date = datetime.date.today() + datetime.timedelta(days=1)
-        self.date_str = "New Papers"
+        ######################
+        # set up directories #
+        ######################
 
-        self.load_each_day = load_each_day
-        self.load_none = load_none
+        directories_filepath = DIRECTORIES_FILE
+        dirs = {"bib": DEFAULT_BIB_DIR, "downloads" : DEFAULT_DOWNLOAD_DIR}
 
-        if load_all:
-            os.system('cls' if os.name == 'nt' else 'clear')
-            print("loading papers...")
-            for i, paper in enumerate(self.full_feed):
-                paper.load()
-                print(f"{i}/{len(self.full_feed)}", end="\r")
+        # read from directories.json file if it exists
+        if os.path.exists(directories_filepath):
+            with open(directories_filepath, 'r') as f:
+                dirs = json.load(f)
+        # otherwise, create directories.json
+        else:
+            with open(directories_filepath, 'w') as fout:
+                fout.write(str(json.dumps(dirs, indent=4, sort_keys=True,separators=(",",": "), ensure_ascii=False)))
+        
+        self.bib_directory = dirs["bib"]
+        self.download_directory = dirs["downloads"]
 
-        self.load_unseen()
+        if not os.path.exists(self.download_directory):
+            os.makedirs(self.download_directory)
+            
+        #################
+        # set up window #
+        #################    
 
         # initially update window
         self.width = 0
@@ -377,14 +397,32 @@ class Reader:
         self.author_txt.pack()
         self.abstract_txt.pack()
         self.status_bar_txt.pack(padx = 5, pady = 20, side = tk.BOTTOM)
+        
+        ######################
+        # set up keybindings #
+        ######################
 
-        self.root.bind_all(NEXT_KEY, self.next)
-        self.root.bind_all(PREV_KEY, self.prev)
-        self.root.bind_all(YESTERDAY_KEY, self.yesterday)
-        self.root.bind_all(TOMORROW_KEY, self.tomorrow)
-        self.root.bind_all(DOWNLOAD_KEY, self.download)
-        self.root.bind_all(OPEN_KEY, self.open_webpage)
-        self.root.bind_all(QUIT_KEY, self.exit)
-        self.root.bind_all(SETTINGS_KEY, self.open_settings)
+        keybindings_filepath = os.path.join(os.getenv("HOME"), ".abstract-aggregator", "keybindings.json")
 
+        self.keybindings = DEFAULT_KEYBINDINGS
+
+        # read from keybindings.json file if it exists
+        if os.path.exists(keybindings_filepath):
+            with open(keybindings_filepath, 'r') as f:
+                self.keybindings.update(json.load(f))
+        # otherwise, create keybindings.json
+        else:
+            with open(keybindings_filepath, 'w') as fout:
+                fout.write(str(json.dumps(self.keybindings, indent=4, sort_keys=True,separators=(",",": "), ensure_ascii=False)))
+
+        self.root.bind_all(self.keybindings["NEXT"], self.next)
+        self.root.bind_all(self.keybindings["PREV"], self.prev)
+        self.root.bind_all(self.keybindings["YESTERDAY"], self.yesterday)
+        self.root.bind_all(self.keybindings["TOMORROW"], self.tomorrow)
+        self.root.bind_all(self.keybindings["DOWNLOAD"], self.download)
+        self.root.bind_all(self.keybindings["OPEN"], self.open_webpage)
+        self.root.bind_all(self.keybindings["QUIT"], self.exit)
+        self.root.bind_all(self.keybindings["SETTINGS"], self.open_settings)
+
+        self.load_unseen()
         self.update_window()

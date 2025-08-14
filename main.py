@@ -48,7 +48,7 @@ try:
 
     # operating directories
     
-    Reader = Reader(window, papers, download_directory=DOWNLOAD_DIR, bib_directory=BIB_DIR, load_each_day = False, load_all = False, load_none = False)
+    Reader = Reader(window, papers, load_each_day = False, load_all = False, load_none = False)
 
 
     daemon = Thread(target=lambda : background_load(Reader), daemon=True, name='Loader')

@@ -21,10 +21,12 @@ KEYAUTHORS = {"gedik": 20, "cavalleri": 10}
 
 JOURNALS = {"arxiv": 0, "prb": 1, "prl": 1, "npjqm": 4, "nphys": 4, "nmat": 4, "nphoton": 4, "nnano": 2, "ncomms": 1}
 
-# path to directory where downloaded pdfs should be saved
-DOWNLOAD_DIR = os.path.join(os.path.expanduser("~"), "Documents", "mit", "gedik_group", "reading", "")
-# path to .bib file where citations should be written
-BIB_DIR = os.path.join(os.path.expanduser("~"), "Documents", "mit", "gedik_group", "reading", "bibliography.bib")
+# path to json file where overwritten directories are saved
+DIRECTORIES_FILE = os.path.join(os.getenv("HOME"), ".abstract-aggregator", "directories.json")
+# default path to directory where downloaded pdfs should be saved
+DEFAULT_DOWNLOAD_DIR = os.path.join(os.getenv("HOME"), ".abstract-aggregator", "downloads")
+# default path to .bib file where citations should be written
+DEFAULT_BIB_DIR = os.path.join(os.getenv("HOME"), ".abstract-aggregator", "bibliography.bib")
 
 # minimum score to display a paper, currently not used
 MIN_SCORE = 0
@@ -39,11 +41,13 @@ NUM_AUTHOR_BIAS = 2
 HEADERS = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246", 'Accept-Encoding': 'gzip'}
 
 # KEYBINDINGS (using tk keycodes)
-NEXT_KEY = '<Right>'
-PREV_KEY = '<Left>'
-YESTERDAY_KEY = "<.>"
-TOMORROW_KEY = "<Return>"
-DOWNLOAD_KEY = "<Down>"
-OPEN_KEY = "<Up>"
-QUIT_KEY = "<q>"
-SETTINGS_KEY = "<Control-s>"
+DEFAULT_KEYBINDINGS = {
+            "NEXT" : "<Right>",
+            "PREV" : "<Left>",
+            "YESTERDAY" : "<.>",
+            "TOMORROW" : "<Return>",
+            "DOWNLOAD" : "<Down>",
+            "OPEN" : "<Up>",
+            "QUIT" : "<q>",
+            "SETTINGS" : "<Control-s>"
+        }
