@@ -62,11 +62,13 @@ def background_load(reader) -> None:
 
 # pass a relative filepath from app's directory and a json file; if file exists, updates json file with info in directory, otherwise writes directory to file at location
 def update_to_or_from_saved_json(filepath: str, dictionary: dict):
+    # create absolute filepath from relative filepath    
     fullfilepath = os.path.join(os.getenv("HOME"), ".abstract-aggregator", filepath)
+    # check if file already exists    
     if os.path.exists(fullfilepath):
         with open(fullfilepath, 'r') as f:
             dictionary.update(json.load(f))
-    # otherwise, create keybindings.json
+    # otherwise, create associated json file
     else:
         with open(fullfilepath, 'w') as fout:
             fout.write(str(json.dumps(dictionary, indent=4, sort_keys=True,separators=(",",": "), ensure_ascii=False)))
