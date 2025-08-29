@@ -15,48 +15,51 @@ import tkinter as tk
 
 import traceback
 
-# try: 
 if not os.path.exists(os.path.join(os.path.expanduser('~'), ".abstract-aggregator")):
     os.makedirs(os.path.join(os.path.expanduser('~'), ".abstract-aggregator"))
 if not os.path.exists(os.path.join(os.path.expanduser('~'), ".abstract-aggregator", "scorer")):
     os.makedirs(os.path.join(os.path.expanduser('~'), ".abstract-aggregator", "scorer"))
 
-window = tk.Tk()
+ERROR_LOG_PATH = os.path.join(os.path.expanduser('~'), ".abstract-aggregator", "error.log")
 
-window_width = 800
-window_height = 600
+try: 
 
-screen_width = window.winfo_screenwidth()
-screen_height = window.winfo_screenheight()
-x = (screen_width/2) - (window_width/2)
-y = (screen_height/2) - (window_height/2)
+    window = tk.Tk()
 
-window.title("Abstract Aggregator")
-window.geometry('%dx%d+%d+%d' % (window_width, window_height, x, y))
-window.attributes("-topmost", 1)
-window.attributes("-topmost", 0)
+    window_width = 800
+    window_height = 600
 
-window.configure(bg=BG_COLOR)
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width/2) - (window_width/2)
+    y = (screen_height/2) - (window_height/2)
 
-load_txt = tk.Label(window, text="Loading papers...", bg=BG_COLOR, fg=TXT_COLOR, font="helvetica 20 bold", justify="center", pady = 20)
-load_txt.pack()
+    window.title("Abstract Aggregator")
+    window.geometry('%dx%d+%d+%d' % (window_width, window_height, x, y))
+    window.attributes("-topmost", 1)
+    window.attributes("-topmost", 0)
 
-window.update()
+    window.configure(bg=BG_COLOR)
 
-scorer = Scorer()
+    load_txt = tk.Label(window, text="Loading papers...", bg=BG_COLOR, fg=TXT_COLOR, font="helvetica 20 bold", justify="center", pady = 20)
+    load_txt.pack()
 
-papers = get_all_papers(scorer)
+    window.update()
 
-Reader = Reader(window, papers, scorer)
+    scorer = Scorer()
 
-daemon = Thread(target=lambda : background_load(Reader), daemon=True, name='Loader')
-daemon.start()
+    papers = get_all_papers(scorer)
 
-load_txt.pack_forget()
+    Reader = Reader(window, papers, scorer)
+
+    daemon = Thread(target=lambda : background_load(Reader), daemon=True, name='Loader')
+    daemon.start()
+
+    load_txt.pack_forget()
 
 
-Reader.start()
+    Reader.start()
 
-# except: 
-#     with open(os.path.join(os.path.expanduser("~"), "Documents", "fun", "programming", "abstract-aggregator", "error.log"), "a") as f:
-#         f.write(traceback.format_exc())
+except: 
+    with open(ERROR_LOG_PATH, "a") as f:
+        f.write(traceback.format_exc())
