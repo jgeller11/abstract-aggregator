@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.font as font
 from tkinter import ttk
 import os
 import datetime
@@ -184,7 +185,7 @@ class Reader:
         beginning_str = " " + "|" + current_paper.journal + "|" 
         end_str = "|" + str(self.current_paper+1) + "/" + str(self.total_papers) + "|" + date_str + "|"
         
-        status_bar_width = int(self.width / 9) # estimate number of characters
+        status_bar_width = int((self.width - 50) / (font.Font(family="courier").measure("AB") - font.Font(family="courier").measure("B") + 1)) # estimate number of characters
 
         len_score = status_bar_width - len(end_str)
         score_frac = max(0,min(1,current_paper.score / 11)) # 11 is some arbitrary great score
@@ -317,7 +318,7 @@ class Reader:
 
         self.seen_dois = set()
 
-        self.seen_dois_filepath = os.path.join(os.getenv("HOME"), ".abstract-aggregator", "seendois.txt")
+        self.seen_dois_filepath = os.path.join(os.path.expanduser('~'), ".abstract-aggregator", "seendois.txt")
 
         # read from seendois.txt file if it exists
         if os.path.exists(self.seen_dois_filepath):

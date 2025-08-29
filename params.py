@@ -24,9 +24,9 @@ JOURNALS = {"arxiv": 0}
 AUTHOR_BIAS_INFO = {"scale" : 10, "bias" : 2}
 
 # default absolute path to directory where downloaded pdfs should be saved
-DEFAULT_DOWNLOAD_DIR = os.path.join(os.getenv("HOME"), ".abstract-aggregator", "downloads")
+DEFAULT_DOWNLOAD_DIR = os.path.join(os.path.expanduser('~'), ".abstract-aggregator", "downloads")
 # default absolute path to .bib file where citations should be written
-DEFAULT_BIB_DIR = os.path.join(os.getenv("HOME"), ".abstract-aggregator", "bibliography.bib")
+DEFAULT_BIB_DIR = os.path.join(os.path.expanduser('~'), ".abstract-aggregator", "bibliography.bib")
 
 
 # for web scraping for abstracts
