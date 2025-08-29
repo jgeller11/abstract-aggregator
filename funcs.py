@@ -60,6 +60,15 @@ def background_load(reader) -> None:
         else: # wait longer for user to proceed to next feed
             time.sleep(5)
 
+# pass a relative filepath from app's directory and a json file; writes directory to file at location
+def update_to_saved_json(filepath: str, dictionary: dict):
+    # create absolute filepath from relative filepath    
+    fullfilepath = os.path.join(os.path.expanduser('~'), ".abstract-aggregator", filepath)
+    
+    # otherwise, write to/create associated json file
+    with open(fullfilepath, 'w') as fout:
+        fout.write(str(json.dumps(dictionary, indent=4, sort_keys=True,separators=(",",": "), ensure_ascii=False)))
+
 # pass a relative filepath from app's directory and a json file; if file exists, updates json file with info in directory, otherwise writes directory to file at location
 def update_to_or_from_saved_json(filepath: str, dictionary: dict):
     # create absolute filepath from relative filepath    

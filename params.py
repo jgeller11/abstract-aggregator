@@ -32,14 +32,26 @@ DEFAULT_BIB_DIR = os.path.join(os.path.expanduser('~'), ".abstract-aggregator", 
 # for web scraping for abstracts
 HEADERS = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246", 'Accept-Encoding': 'gzip'}
 
-# KEYBINDINGS (using tk keycodes)
+# KEYBINDINGS (using tk keysymbols)
 DEFAULT_KEYBINDINGS = {
-            "NEXT" : "<Right>",
-            "PREV" : "<Left>",
-            "YESTERDAY" : "<.>",
-            "TOMORROW" : "<Return>",
-            "DOWNLOAD" : "<Down>",
-            "OPEN" : "<Up>",
-            "QUIT" : "<q>",
-            "SETTINGS" : "<Control-s>"
+            "NEXT" : "Right",
+            "PREV" : "Left",
+            "YESTERDAY" : "period",
+            "TOMORROW" : "Return",
+            "DOWNLOAD" : "Down",
+            "OPEN" : "Up",
+            "QUIT" : "q",
+            "SETTINGS" : "s"
+        }
+
+# KEYCODES (using tk keycodes)
+DEFAULT_KEYCODES = {
+            "NEXT" : 85,
+            "PREV" : 83,
+            "YESTERDAY" : 91,
+            "TOMORROW" : 108,
+            "DOWNLOAD" : 88,
+            "OPEN" : 80,
+            "QUIT" : 100000, 
+            "SETTINGS" : 100000
         }

@@ -276,6 +276,9 @@ class Reader:
         if self.settings_window is not None:
             return False
         
+        self.temp_keycodes = self.keycodes.copy()
+        self.temp_keybindings = self.keybindings.copy()
+
         self.settings_window = tk.Tk()
         def close_window(): 
             self.settings_window.destroy()
@@ -297,9 +300,70 @@ class Reader:
 
         self.settings_window.configure(bg=BG_COLOR)
 
+        def accept_rebind(op: str):
+            self.buttons[op].configure(text = "listening")
+            self.settings_window.bind("<Key>", lambda event: stage_rebind(event, op))
+
+        # TODO: store pressed key in temp dict to be saved later (possibly)
+        def stage_rebind(event: tk.Event, op: str):
+            self.temp_keybindings[op] = event.keysym
+            self.temp_keycodes[op] = event.keycode
+            self.buttons[op].configure(text = op + ": " + self.temp_keybindings[op])
+            self.settings_window.unbind("<Key>")
+
+        def save_changes(event: tk.Event = None):
+            self.keybindings = self.temp_keybindings
+            self.keycodes = self.temp_keycodes
+
+            keybindings_filepath = "keybindings.json"
+            update_to_saved_json(keybindings_filepath, self.keybindings)
+
+            keycodes_filepath = "keycodes.json"
+            update_to_saved_json(keycodes_filepath, self.keycodes)
+
+            close_window()
+
+        label = tk.Label(master = self.settings_window, text = "This window is a bit finicky as of now! To change a keybinding, click the associated button until it says \"listening\" (you may have to try more than once), then press your new key. Don't forget to press \"save changes\" at the end—you'll know it worked if the window closes. There are no safeguards to prevent you from binding multiple things to the same key, so don't do that!", bg=BG_COLOR, fg=TXT_COLOR, font="helvetica 14", wraplength=300, justify="left", pady = 20)
+        label.pack()
+
+        self.buttons = {}
+        for op in self.keybindings.keys():
+            # self.buttons[op] = ttk.Button(master=self.settings_window, text= op + ": " + self.keybindings[op],command = lambda op = op: accept_rebind(op))
+            # self.buttons[op].pack()
+            self.buttons[op] = tk.Label(master=self.settings_window, text= op + ": " + self.keybindings[op], bg=BG_COLOR, fg=TXT_COLOR, font="helvetica 14", pady=10)
+            self.buttons[op].bind("<Button-1>", lambda event, op=op: accept_rebind(op))
+            self.buttons[op].pack()
+
+        self.save_button = tk.Label(master=self.settings_window, text= "Save changes", bg=BG_COLOR, fg=TXT_COLOR, font="helvetica 14", pady=10)
+        self.save_button.bind("<Button-1>", save_changes)
+        # ttk.Button(master = self.settings_window,text = "Save changes", command = save_changes)
+        self.save_button.pack()
+
         self.settings_window.mainloop()
         
         return True
+
+    def process_key_input(self, event: tk.Event):
+        kc = str(event.keycode)
+        sym = event.keysym
+
+        if (kc == self.keycodes["NEXT"]) or (sym == self.keybindings["NEXT"]):
+            self.next()
+        elif (kc == self.keycodes["PREV"]) or (sym == self.keybindings["PREV"]):
+            self.prev()
+        elif (kc == self.keycodes["YESTERDAY"]) or (sym == self.keybindings["YESTERDAY"]):
+            self.yesterday()
+        elif (kc == self.keycodes["TOMORROW"]) or (sym == self.keybindings["TOMORROW"]):
+            self.tomorrow()
+        elif (kc == self.keycodes["DOWNLOAD"]) or (sym == self.keybindings["DOWNLOAD"]):
+            self.download()
+        elif (kc == self.keycodes["OPEN"]) or (sym == self.keybindings["OPEN"]):
+            self.open_webpage()
+        elif (kc == self.keycodes["QUIT"]) or (sym == self.keybindings["QUIT"]):
+            self.exit()
+        elif (kc == self.keycodes["SETTINGS"]) or (sym == self.keybindings["SETTINGS"]):
+            self.open_settings()
+        
 
     # initialize gui_reader object
     # feed: list of papers to be potentially displayed
@@ -379,14 +443,11 @@ class Reader:
         self.keybindings = DEFAULT_KEYBINDINGS
         update_to_or_from_saved_json(keybindings_filepath, self.keybindings)
 
-        self.root.bind_all(self.keybindings["NEXT"], self.next)
-        self.root.bind_all(self.keybindings["PREV"], self.prev)
-        self.root.bind_all(self.keybindings["YESTERDAY"], self.yesterday)
-        self.root.bind_all(self.keybindings["TOMORROW"], self.tomorrow)
-        self.root.bind_all(self.keybindings["DOWNLOAD"], self.download)
-        self.root.bind_all(self.keybindings["OPEN"], self.open_webpage)
-        self.root.bind_all(self.keybindings["QUIT"], self.exit)
-        self.root.bind_all(self.keybindings["SETTINGS"], self.open_settings)
+        keycodes_filepath = "keycodes.json"
+        self.keycodes = DEFAULT_KEYCODES
+        update_to_or_from_saved_json(keycodes_filepath, self.keycodes)
+
+        self.root.bind("<Key>", self.process_key_input)
 
         self.load_unseen()
         self.update_window()
