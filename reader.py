@@ -159,7 +159,7 @@ class Reader:
         
         paper = self.get_current_paper()
 
-        title_str = paper.title.replace("\n"," ").replace("  "," ").replace("  "," ").replace("\\textrm", "").replace("\\text", "").replace("\\mathrm", "").replace("$", "") # TODO: clean this up a lot, implement function to fix up paper titles/abstracts
+        title_str = paper.title.replace("\n"," ").replace("  "," ").replace("  "," ").replace("\\textrm", "").replace("\\textsc", "").replace("\\text", "").replace("\\mathrm", "").replace("$", "") # TODO: clean this up a lot, implement function to fix up paper titles/abstracts
         self.title_txt.config(text = title_str)
 
         author_str = ", ".join(paper.authors)
